@@ -3,6 +3,7 @@
 #include <linux/uaccess.h>
 
 /* take two numbers, add them, and tehn put them in a result*/
+//do thing
 asmlinkage long sys_simple_add(int number1, int number2, int *result)
 {
 	int x;
