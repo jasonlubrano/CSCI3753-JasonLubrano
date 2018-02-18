@@ -1,0 +1,62 @@
+JasonLubrano-CSCI3753-PA2:
+simple_char_driver.c
+simple_char_driver_test.c
+Makefile
+helloModule.c
+
+Inside of the modules folder:
+1. Make a file foler called modules inside of the home folder
+2. Include these four files
+	simple_char_driver.c, simple_char_driver_test.c, Makefile, helloModule.c
+3. Make a file for the driver:
+	- In the command terminal execute:
+	sudo mknod -m 777 /dev/simple_character_device c 789 0
+		- 789 is our major number
+		- 0 is our minor number
+		- c is for the character
+4. Make the .ko (loadable kernel module)
+	- In the command terminal execute:
+		make -C /lib/modules/$(uname -r)/build M=$PWD modules
+5. Install the module:
+	- In the command terminal execute:
+		sudo insmod simple_char_driver.ko
+		sudo insmod helloModule.ko
+6. Inorder to verify we installed it correctly:
+	- In the command terminal execute these commands:
+		lsmod | grep simple
+		ls -l /dev/simple_character_device
+		lsmod | grep helloModule
+7. Make a .o (object) file for the test:
+	- In the command terminal execute:
+		gcc simple_char_driver_test.c -o simple_char_driver_test
+
+Inside of the simple_char_driver_test program:
+	r reads the characters
+	w writes the characters
+	s seeks
+	e exits
+1. Read allows the user to read a selected number of bytes from the file
+2. Writes the desired length to the file
+3. Seek gives three options, seek current, seek set, seek end
+4. exit exits the program
+
+Inside of the simple_char_driver.c file:
+1. We have a BUFF_SIZE of 1024
+2. Our MAJOR_NUMBER here is defined at 789
+3. Our DEVICE_NAME is simple_character_device
+- There are a couple functions we have:
+	open
+		- opens our file
+	close
+		- closes our file
+	seek
+		- seeks to the location
+	read
+		- reads the requested bytes from the user
+	write
+		- writes the buffer to the file
+
+Initialize the driver, then close the driver
+
+
+helloModule.c was the test program with basic inits and exits
