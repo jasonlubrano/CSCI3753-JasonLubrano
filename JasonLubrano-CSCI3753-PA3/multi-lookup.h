@@ -23,6 +23,7 @@
 
 /* code included by Professor Knox */
 #include "util.h"
+#include "shared_array.h"
 
 /* writeup */
 #define MAX_INPUT_FILES 10 /* max of 10 files */
@@ -32,14 +33,22 @@
 #define MAX_IP_LENGTH INET6_ADDRSTRLEN /* max ip length */
 
 /* write some of the mutexs */
-pthread_mutex_t mutex_wait; /* make a wait mutex */
-pthread_mutex_t mutex_full; /* lock the bb if its full */
+pthread_mutex_t mutex;
+pthread_mutex_t write1; /* blocking for one write */
+pthread_mutex_t write2; /* second blcoking for starvation */
+pthread_mutex_t read; /* one reader */
+pthread_mutex_t queue; /* having the queue, question this */
+pthread_mutex_t report; /* error reporting block */
 pthread_cond_t signal; /* conditional signal good for waiting threads */
-queue process_queue; /* the queue where we will store our processes */
-int counter; /* counter */
+
+int requestThreads = 0; /* number of request threads completed */
+int counter; /* counter for read*/
+int debug = 1; /* set this to one for debugging purposes */
+int numRequestThreads = -1 /* shows up later */
+FILE* foutput = NULL; /* set this equal to null */
 
 /* functions */
-void *requester(void *filename); /* function to get the requester threads */
-void *resolver(void *filename); /* function for the resolver threads */
+void *request_thread(void *filename); /* function to get the requester threads */
+void *resolve_thread(void *filename); /* function for the resolver threads */
 
 #endif
