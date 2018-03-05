@@ -1,5 +1,5 @@
 /* Jason Lubrano
- * multi-lookup.c
+ * multi-lookup.h
  * PA3
  */
 
