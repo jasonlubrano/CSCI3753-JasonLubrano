@@ -12,7 +12,13 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/syscalls.h>
 
+/* file for the shared array */
+#include "shared_array.h"
 
 /* files to get data from */
 #include "names1.txt"
@@ -23,7 +29,6 @@
 
 /* code included by Professor Knox */
 #include "util.h"
-#include "shared_array.h"
 
 /* writeup */
 #define MAX_INPUT_FILES 10 /* max of 10 files */
@@ -31,24 +36,36 @@
 #define MAX_REQUESTER_THREADS 5 /* max 5 requester threads */
 #define MAX_NAME_LENGTH 1025 /* include null terminator */
 #define MAX_IP_LENGTH INET6_ADDRSTRLEN /* max ip length */
+#define MIN_ARGS 3 /* min num of arguments */
+#define PATH "<inputFilePath> <outputFilePath>"
+#define BUFFSIZE 1025
+#define INPUTFS "%1024s"
+#define EXIT_FAILURE -1 /* returns this whenever we fail */
 
-/* write some of the mutexs */
-pthread_mutex_t mutex;
-pthread_mutex_t write1; /* blocking for one write */
-pthread_mutex_t write2; /* second blcoking for starvation */
-pthread_mutex_t read; /* one reader */
-pthread_mutex_t queue; /* having the queue, question this */
-pthread_mutex_t report; /* error reporting block */
-pthread_cond_t signal; /* conditional signal good for waiting threads */
+/* structs */
+struct dynamicArray{
+	FILE *array[5];
+	int size;
+};
 
-int requestThreads = 0; /* number of request threads completed */
-int counter; /* counter for read*/
-int debug = 1; /* set this to one for debugging purposes */
-int numRequestThreads = -1 /* shows up later */
-FILE* foutput = NULL; /* set this equal to null */
+struct dataRequest{
+	long threadNum;
+	struct dynamicArray inputFiles;
+	array_stack* s_arr;
+	int servicedFiles;
+};
+
+struct dataResolve{
+	FILE* fileOutput;
+	array_stack* s_arr;
+};
 
 /* functions */
-void *request_thread(void *filename); /* function to get the requester threads */
-void *resolve_thread(void *filename); /* function for the resolver threads */
+void *thread_requester(void *threadarg); /* function to get the requester threads */
+void *thread_resolver(void *threadarg); /* function for the resolver threads */
+long long gettimeofday_func(); /* syscall to get the time */
+
+int main(int argc, char* argv[]);
+
 
 #endif

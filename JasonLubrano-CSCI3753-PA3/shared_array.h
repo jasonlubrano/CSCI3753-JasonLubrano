@@ -11,6 +11,7 @@
 #define MAX_ARRAY_SIZE 100 /* final size of a array */
 #define ARRAY_FAIL -1 /* failure */
 #define ARRAY_PASS 0 /* passing */
+#define TEST_ARRAY_SIZE 10 /* use it to test some sizes */
 
 typedef struct array_index_struct {
 	void* contains;
