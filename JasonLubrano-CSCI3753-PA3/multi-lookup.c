@@ -293,6 +293,7 @@ void* RESOLVE_THREAD(void* threadarg){
     FILE* outfilep; /* file we are writing to */
     char firstipstr[INET6_ADDRSTRLEN]; /* how we write the thing */
     char * hostname; /* name of the host */
+    //schar * ip_address; /* will be the ip address we write */
     SHARED_ARRAY* s_array; /* shared array */
 
     RES_TH_DATA_STRUCT = (struct RES_TH_DATA_STRUCT *) threadarg;
@@ -319,7 +320,7 @@ void* RESOLVE_THREAD(void* threadarg){
         /* we are reading! */
         readCount = readCount + 1;
         if(debug){
-        	printf("we are reading\n");
+        	printf("DEBUG> %d BUSY READING\n", res_thread_id);
         }
 
         /* because we are reading, we will have to lock otu the writers */
@@ -340,7 +341,7 @@ void* RESOLVE_THREAD(void* threadarg){
             /*if it isnt empty we will get the id, set the bool int resolverd equal to 1 */
             if (hostname != NULL){
             	if(debug){
-            		printf("Looking up IP for: %s\n", hostname);
+            		printf("DEBUG> SEARCHING IP for: %s\n", hostname);
             	}
 	            resolved = 1; /* boolean that was a local var */
         	}
@@ -360,27 +361,19 @@ void* RESOLVE_THREAD(void* threadarg){
         /* if resolved is set to 1 */
         if(resolved){
         	SHARED_ARRAY IP_LIST; /* list of IP addresses */
-        	SHARED_ARRAY_INIT(&IP_LIST, 50); /* INIT the IP, set the max to 50 bc its the size of the main shared array */
+        	SHARED_ARRAY_INIT(&IP_LIST, ARRAY_SIZE_TEST); /* INIT the IP, set the max to 50 bc its the size of the main shared array */
+            pthread_mutex_lock(&error_report);
             if(dnslookup(hostname, firstipstr, sizeof(firstipstr)) == UTIL_FAILURE){
                 fprintf(stderr, "dnslookup bogus hostname error: %s\n", hostname);
                 strncpy(firstipstr, "", sizeof(firstipstr));
                 /* something happened and we failed the lookup */
             }
-            /* print to the file the hostname, which would be the IP address */
-            fprintf(outfilep, "%s", hostname);
-    		char * ip_address;
-    		pthread_mutex_lock(&error_report);
-    		/* lock the error report incase there is multiple */
-            while( (ip_address = (char *) SHARED_ARRAY_REMOVE_ITEM(&IP_LIST)) != NULL){
-            	/* remove items from the array until it is empty, add it to the output file */
-		    	fprintf(outfilep, ",%s", ip_address);
-		    	/* free up the memory space after */
-		    	free(ip_address);
-		    }
-		    /* print to the outfile */
-		    fprintf(outfilep, "\n");
-		    /* unlcok the error reporting mutex */
-            pthread_mutex_unlock(&error_report);
+            /* print to the file the hostname and the ipistr which would be the IP address */
+            fprintf(outfilep, "%s, %s\n", hostname, firstipstr);
+            if(debug){
+            	printf("WRITING>: %s, %s\n", hostname, firstipstr);
+            }
+			pthread_mutex_unlock(&error_report);
             /* free up the hostname */
 		    free(hostname);
 		    /* empty the IP_LIST array */
@@ -389,7 +382,7 @@ void* RESOLVE_THREAD(void* threadarg){
     }
 
     if(debug){
-    	printf("%s is closing, resolver thread says goodnight\n", __func__);
+    	printf("DEBUG> %s is closing, resolver thread says goodnight\n", __func__);
 	}
 
     return NULL;
@@ -470,7 +463,7 @@ int main(int argc, char* argv[]){
     num_req_ths = (num_req_ths > MAX_REQ_THS) ? MAX_REQ_THS : num_req_ths;
 
     if(debug){
-    	printf("number of req threads %d \n", num_req_ths);
+    	printf("DEBUG> number of req threads %d \n", num_req_ths);
     }
     
     if (num_req_ths == -1){
