@@ -1,71 +1,100 @@
-/* Jason Lubrano
- * multi-lookup.h
- * PA3
- */
+/*
+    JASON LUBRANO
+    CSCI 3753
+    PA3
+    COLLAB: KYLE WARD
+    multi-lookup.h
+*/
 
-#ifndef multi_lookup_h
-#define multi_lookup_h
-
-#include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/syscalls.h>
+#include <sys/syscall.h>
 
-/* file for the shared array */
-#include "shared_array.h"
-
-/* files to get data from */
-#include "names1.txt"
-#include "names2.txt"
-#include "names3.txt"
-#include "names4.txt"
-#include "names5.txt"
-
-/* code included by Professor Knox */
+/* file to include handed out by dr. knox */
 #include "util.h"
 
-/* writeup */
-#define MAX_INPUT_FILES 10 /* max of 10 files */
-#define MAX_RESOLVER_THREADS 10 /* max 10 resolver threads */
-#define MAX_REQUESTER_THREADS 5 /* max 5 requester threads */
-#define MAX_NAME_LENGTH 1025 /* include null terminator */
-#define MAX_IP_LENGTH INET6_ADDRSTRLEN /* max ip length */
-#define MIN_ARGS 3 /* min num of arguments */
-#define PATH "<inputFilePath> <outputFilePath>"
+#define SHARED_ARRAY_FAILURE -1
+#define SHARED_ARRAY_SUCCESS 0
+#define SHARED_ARRAY_MAXSIZE 50
+#define MINARGS 3
+#define SYNOPSIS "<inputFilePath> <outputFilePath>"
 #define BUFFSIZE 1025
 #define INPUTFS "%1024s"
-#define EXIT_FAILURE -1 /* returns this whenever we fail */
+#define ARRAY_SIZE_TEST 20
+#define MAX_REQ_THS 10
+#define MAX_RES_THS 5
 
-/* structs */
-struct dynamicArray{
-	FILE *array[5];
-	int size;
+/* SHARED ARRAY */
+
+/* the array will have the contained items */
+typedef struct SHARED_ARRAY_INDEX_STRUCT{
+    void* contains;
+} SHARED_ARRAY_INDEX;
+
+/* and this will be the data struct for the pointers in the array */
+typedef struct SHARED_ARRAY_STRUCT{
+    SHARED_ARRAY_INDEX* array;
+    int head;
+    int tail;
+    int maxSize;
+} SHARED_ARRAY;
+/* this was a trick i learned from a professor in DS */
+
+
+/* initalizes the shared array, on success returns 0, else -1 */
+int SHARED_ARRAY_INIT(SHARED_ARRAY* s_array, int size);
+
+/* test to see if the shared array is emtpy */
+int SHARED_ARRAY_TEST_EMPTY(SHARED_ARRAY* s_array);
+
+/* test if the shared array is full */
+int SHARED_ARRAY_TEST_FULL(SHARED_ARRAY* s_array);
+
+/* add an item to the shared array */
+int SHARED_ARRAY_ADD_ITEM(SHARED_ARRAY* s_array, void* contains);
+
+/* remove an item from the shared array */
+void* SHARED_ARRAY_REMOVE_ITEM(SHARED_ARRAY* s_array);
+
+/* Function to free shared array allocated memory */
+void SHARED_ARRAY_CLEAR(SHARED_ARRAY* s_array);
+
+/* THREADS */
+
+/* struct for the dynamic array */
+struct DYNAMIC_ARRAY_STRUCT{
+    int size;
+    FILE *array[5];
 };
 
-struct dataRequest{
-	long threadNum;
-	struct dynamicArray inputFiles;
-	array_stack* s_arr;
-	int servicedFiles;
+/* struct for teh requester threads */
+struct REQ_TH_DATA_STRUCT{
+    long threadNum;
+    int filesServiced;
+    struct DYNAMIC_ARRAY_STRUCT inFiles;
+    SHARED_ARRAY* s_array;
 };
 
-struct dataResolve{
-	FILE* fileOutput;
-	array_stack* s_arr;
+/* struct for the resolver threads */
+struct RES_TH_DATA_STRUCT{
+    FILE* outFile;
+    SHARED_ARRAY* s_array;
 };
 
-/* functions */
-void *thread_requester(void *threadarg); /* function to get the requester threads */
-void *thread_resolver(void *threadarg); /* function for the resolver threads */
-long long gettimeofday_func(); /* syscall to get the time */
+/* thread that handles the requester threads */
+void* REQUEST_THREAD(void* threadarg);
 
+/* thread that handles the resolver threads */
+void* RESOLVE_THREAD(void* threadarg);
+
+/* function included by professor knox */
+long long gettimeofday_func();
+
+/* main */
 int main(int argc, char* argv[]);
 
-
-#endif
