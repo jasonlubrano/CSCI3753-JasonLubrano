@@ -1,0 +1,5 @@
+Number for requester thread = 1740
+Number for requester thread = 1741
+Number for resolver thread = 1743
+Number for resolver thread = 1742
+Total run time = 20

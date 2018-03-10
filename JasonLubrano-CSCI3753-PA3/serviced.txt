@@ -1,5 +1,2 @@
-Thread 3321 serviced 1 files.
-Thread 3322 serviced 1 files.
-Thread 3323 serviced 1 files.
-Thread 3324 serviced 1 files.
-Thread 3325 serviced 1 files.
+REQUESTER THREAD #1740 SERVICED 3 FILES
+REQUESTER THREAD #1741 SERVICED 2 FILES

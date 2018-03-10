@@ -10,6 +10,22 @@
 
 #include "multi-lookup.h"
 
+// #define ThunderWare(a) #a
+// const char *ThunderWare_Logo = ThunderWare(
+//    (woowww THUNDER WARE 0000000)	
+//   (oooowwwwooowooooowwooo00000)		
+//  (wwwooowooooooowwwooow00000o)		
+//    (wwooooowoow00000oo0000)			
+//      (wwwwooowo00000wo0)			
+//     	    /    /					
+//     	   /    /					
+//     	  /   _/					
+//     	 /   /						
+//  	    /  _/						
+// 	   / _/							
+// 	  /_/							
+// 	 /								
+// );
 
 /* mutexes, might inlcude these in a struct */
 pthread_mutex_t mutex;
@@ -186,11 +202,11 @@ void* REQUEST_THREAD(void* threadarg){
 	*/
 	output2 = fopen("serviced.txt", "ab");
 	if(!output2){
-		perror("Error Opening Output service File"); /* THIS is the debug message */
+		perror("Error Output2 file was not opened correctly"); /* THIS is the debug message */
 	}
 
 	/* keeps track of the number of files serviced by each thread */
-	fprintf(output2, "Thread %d serviced %d files.\n", req_thread_id, REQ_TH_DATA_STRUCT->filesServiced);
+	fprintf(output2, "REQUESTER THREAD #%d SERVICED %d FILES\n", req_thread_id, REQ_TH_DATA_STRUCT->filesServiced);
 
 	/* close the output file */
 	fclose(output2);
@@ -281,6 +297,11 @@ void* REQUEST_THREAD(void* threadarg){
 		printf("DEBUG> %s is closing, requester thread #%ld says goodnight\n", __func__, threadNum);
 	}
 
+	FILE *fileout = fopen("performance.txt", "ab");
+	fprintf(fileout, "Number for requester thread = %d\n", req_thread_id);
+	fclose(fileout);
+
+
 	/* were done */
 	return NULL;
 }
@@ -318,7 +339,7 @@ void* RESOLVE_THREAD(void* threadarg){
 		/* we are reading! */
 		readCount = readCount + 1;
 		if(debug){
-			printf("DEBUG> %d BUSY READING\n", res_thread_id);
+			printf("DEBUG> Thread %d busy reading while writing is happening\nRead_mutex and mutex are locked.)\n", res_thread_id);
 		}
 
 		/* because we are reading, we will have to lock otu the writers */
@@ -383,6 +404,10 @@ void* RESOLVE_THREAD(void* threadarg){
 		printf("DEBUG> %s is closing, resolver thread says goodnight\n", __func__);
 	}
 
+	FILE *fileout2 = fopen("performance.txt", "ab");
+	fprintf(fileout2, "Number for resolver thread = %d\n", res_thread_id);
+	fclose(fileout2);
+
 	return NULL;
 }
 
@@ -405,6 +430,8 @@ long long gettimeofday_func() {
 
 /* AND WE MADE IT TO THE MAIN */
 int main(int argc, char* argv[]){
+
+	//printf("%s\n", ThunderWare_Logo);
 	/* set the start time */
 	long startTime = gettimeofday_func();
 
@@ -413,6 +440,7 @@ int main(int argc, char* argv[]){
 	
 	/* start off with a new serviced.txt and remove the old one */
 	remove("serviced.txt");
+	remove("performance.txt");
 
 	/* Local Vars */
 	FILE* outfilep = NULL;
@@ -609,6 +637,11 @@ int main(int argc, char* argv[]){
 	long turnaround = (endTime - startTime);
 	printf("Turnaround: %ld seconds\n", turnaround/1000);
 
+	FILE *fileout3 = fopen("performance.txt", "ab");
+	fprintf(fileout3, "Total run time = %ld\n", turnaround/1000);
+	fclose(fileout3);
+
 	/* hopefully this work */
+	//printf("%s\n", ThunderWare_Logo);
 	return EXIT_SUCCESS;
 }
