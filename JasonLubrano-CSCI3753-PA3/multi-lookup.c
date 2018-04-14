@@ -36,9 +36,9 @@ pthread_mutex_t shared_array_mutex; /* mutex to lock the array */
 pthread_mutex_t error_report; /* mutex for error reporting */
 
 /* global vars, move these to the inside funcs */
+int debug = 0; /* Debugging purposes only */
 int req_th_done = 0;
 int readCount = 0;
-int debug = 1; /* Debugging purposes only */
 FILE* output2 = NULL;
 
 int SHARED_ARRAY_INIT(SHARED_ARRAY* s_array, int size){
@@ -176,7 +176,6 @@ void* REQUEST_THREAD(void* threadarg){
 	SHARED_ARRAY* s_array; /* this is the shared array */
 	char* contains; /* whatever is at the index of the shared array */
 	long threadNum; /* thread number */
-
 	/* thread argument */
 	REQ_TH_DATA_STRUCT = (struct REQ_TH_DATA_STRUCT *) threadarg;
 
@@ -314,9 +313,7 @@ void* RESOLVE_THREAD(void* threadarg){
 	char firstipstr[INET6_ADDRSTRLEN]; /* how we write the thing */
 	char * hostname; /* name of the host */
 	SHARED_ARRAY* s_array; /* shared array */
-
 	RES_TH_DATA_STRUCT = (struct RES_TH_DATA_STRUCT *) threadarg;
-	
 	/* make the outfile equal to the outfile from the resolver thread */
 	outfilep = RES_TH_DATA_STRUCT->outFile;
 	/* shared array equal to whatever the thread has to do */
@@ -430,7 +427,6 @@ long long gettimeofday_func() {
 
 /* AND WE MADE IT TO THE MAIN */
 int main(int argc, char* argv[]){
-
 	//printf("%s\n", ThunderWare_Logo);
 	/* set the start time */
 	long startTime = gettimeofday_func();

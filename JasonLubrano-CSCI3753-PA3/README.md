@@ -48,7 +48,7 @@ In the terminal type these commands:
 
         - ex:
 
-        $ 2 2 names1.txt names2.txt results.txt
+        $ ./multi-lookup 2 2 names1.txt names2.txt results.txt
 
     make clean
 

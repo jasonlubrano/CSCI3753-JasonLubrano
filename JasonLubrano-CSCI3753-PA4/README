@@ -1,0 +1,57 @@
+JASON LUBRANO
+CS3753 (Operating Systems)
+Spring 2018
+University of Colorado Boulder
+Programming Assignment 4
+
+---Credit---
+By Andy Sayler - 2012
+http://www.andysayler.com
+
+Adopted From
+Assignment by Dr. Alva Couch
+http://www.cs.tufts.edu/~couch/
+
+---Files---
+Makefile - GNU makefile to build all the code listed here.
+README - As the title so eloquently instructs. READ IT.
+simulator.c - Core simualtor code. For reference only.
+simulator.h - Simulator header file including the simulator API.
+programs.c - Struct representing simulated programs for use by simulator.
+	- For reference and use by simulator code only.
+pager-basic.c - basic paging implementation that only runs one process at a time.
+pager-lru.c - LRU paging implementation
+pager-predict.c - Predictive paging strategy implementation.
+api-test.c - The pageit implementation that detects and prints simulator state changes.
+	- May be useful if you want to confirm the behavior of the simulator api.
+	- Builds to test-api.
+
+---Executables---
+test-* - executable test programs. Runs the simulator using your pager-*.c stragety.
+	- Built using Makefile. The simulator provides a lot of tools to help you analyze your program.
+	- Responds to various signals while in the execution state. (try ctrl-c while simulator is executing)
+test-api - API test program. See api-test.c
+see.R - script for displaying visualization of the process run/block activity in a simulation.
+	- run ./test-* -csv to generate the necessary trace files.
+	- To run visualization, launch R in windowed graphic mode (in Linux: R -g Tk & at the cmd prompt)
+		from the directory containg the trace files
+		(or use setwd to set your working directory to the directory containing the trace files).
+	- Then run source("see.R") at the R cmd prmpt to launch the visulation
+
+---Examples---
+Build:
+	make
+
+Clean:
+	make clean
+
+View test help:
+	./test-* -help
+
+Run test-api:
+	./test-api
+Run pager-lru test:
+	./test-lru
+ 
+Run pager-predict test:
+	./test-predict
